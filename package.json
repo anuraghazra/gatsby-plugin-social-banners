@@ -1,0 +1,37 @@
+{
+  "name": "gatsby-plugin-social-banners",
+  "version":"0.0.0-semantically-released",
+  "description": "Gatsby plugin to automatically generate social card images.",
+  "main": "./index.js",
+  "scripts": {
+    "build": "babel src --out-dir . --ignore **/__tests__",
+    "prepare": "cross-env NODE_ENV=production npm run build",
+    "watch": "babel -w src --out-dir . --ignore **/__tests__"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.7.4",
+    "dateformat": "^3.0.3",
+    "jimp": "^0.8.4"
+  },
+  "peerDependencies": {
+    "gatsby": "^2.0.15"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "author": "Anurag Hazra <hazru.anurag@gmail.com> (https://anuraghazra.github.io)",
+  "license": "MIT",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin",
+    "social",
+    "cards",
+    "social-cards"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.7.4",
+    "@babel/core": "^7.7.4",
+    "babel-preset-gatsby-package": "^0.2.12",
+    "cross-env": "^6.0.3"
+  }
+}
