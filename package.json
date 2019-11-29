@@ -1,6 +1,6 @@
 {
   "name": "gatsby-plugin-social-banners",
-  "version":"0.0.0-semantically-released",
+  "version": "1.0.0",
   "description": "Gatsby plugin to automatically generate social card images.",
   "main": "./index.js",
   "scripts": {
