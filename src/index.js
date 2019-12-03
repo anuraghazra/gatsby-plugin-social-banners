@@ -9,8 +9,8 @@ const { createCanvas, Image, registerFont } = require('canvas')
 module.exports = async ({ markdownNode }, options) => {
   // defaults
   const {
-    font = { name: 'Arial', size: '12px' },
-    subText = { author: 'Anurag hazra' },
+    fonts = [],
+    fields,
     imgWidth = 1200,
     imgHeight = 630,
     x = 139,
@@ -19,25 +19,32 @@ module.exports = async ({ markdownNode }, options) => {
     baseImg,
   } = options;
 
+  const centerX = imgWidth / 2;
+  const centerY = imgHeight / 2;
+
   if (!baseImg) {
     throw new Error('gatsby-plugin-social-banners: Please provide a template image in `baseImg`')
   };
 
-  const { frontmatter, fields } = markdownNode;
-  if (fields.posttype === 'case-studies') return;
+  const { frontmatter, fields: markdownFields } = markdownNode;
+  if (markdownFields.posttype === 'case-studies') return;
 
-  const output = path.join('public', fields.slug, outputImg);
-  const folder = path.join('public', fields.slug);
+  const output = path.join('public', markdownFields.slug, outputImg);
+  const folder = path.join('./public', markdownFields.slug);
   if (!fs.existsSync(folder)) {
-    fs.mkdirSync(folder);
+    console.log(markdownFields.slug)
+    fs.mkdir(folder, function(err) {
+      if (err) throw err;
+       console.log('CREATEDDDDDD')
+    });
   }
 
-  if (font.src) {
+  fonts.forEach(font => {
     registerFont(font.src, { family: font.name });
-  }
+  });
+
   const canvas = createCanvas(imgWidth, imgHeight)
   const ctx = canvas.getContext('2d')
-
 
   // draw
   const img = new Image()
@@ -45,23 +52,32 @@ module.exports = async ({ markdownNode }, options) => {
   img.onerror = err => { throw err }
   img.src = baseImg;
 
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = "center";
-  ctx.save();
-  ctx.fillStyle = font.color;
-  ctx.translate(imgWidth / 2, imgHeight / 2 - 50)
-  ctx.font = `${font.weight} ${font.size}px "${font.name}"`;
-  let lines = getLines(ctx, frontmatter.title, font.size, 1000);
-  for (let i = 0; i < lines.length; i++) {
-    ctx.fillText(lines[i].text, 0, font.size * i);
+  if (fields.title) {
+    let { x, y, font, color, fontSize, lineHeight, textAlign } = fields.title;
+
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = textAlign || 'center';
+    ctx.save();
+    ctx.fillStyle = color || 'black';
+    ctx.translate(x || centerX, y || centerY - 50)
+    ctx.font = font;
+
+    let lines = getLines(ctx, frontmatter.title, fontSize, 1000);
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i].text, 0, (fontSize + lineHeight) * i);
+    }
+    ctx.restore();
   }
-  ctx.restore();
 
+  if (fields.subtext) {
+    let { x, y, font, color, author } = fields.subtext;
 
-  let secondaryText = `${dateformat(frontmatter.date, 'mmmm d, yyyy')}  |  ${subText.author}`
-  ctx.font = `normal 24px "${font.name}"`;
-  ctx.fillStyle = font.secondaryColor;
-  ctx.fillText(secondaryText, imgWidth / 2, imgHeight - 200);
+    ctx.translate(x || centerX, y || centerY);
+    let secondaryText = `${dateformat(frontmatter.date, 'mmmm d, yyyy')}  |  ${author}`;
+    ctx.font = font;;
+    ctx.fillStyle = color || 'black';
+    ctx.fillText(secondaryText, 0, 0);
+  }
 
   const out = fs.createWriteStream(output);
   canvas
